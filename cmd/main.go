@@ -9,7 +9,7 @@ const (
 	Done   = "done"
 )
 
-type Job struct {
+type Jobs struct {
 	ID            int64
 	AudioID       int64
 	CurrentStatus CurrentStage
