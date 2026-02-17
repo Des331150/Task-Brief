@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type CurrentStage string
@@ -26,6 +28,11 @@ type Jobs struct {
 }
 
 func ConnectionPool() (*pgxpool.Pool, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	connection, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
@@ -49,4 +56,32 @@ func main() {
 	defer pool.Close()
 
 	fmt.Println("Database connection secured!")
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("POST /job", createJob)
+	mux.HandleFunc("GET /jobs", listJobs)
+	mux.HandleFunc("GET /job/", getJob)
+	mux.HandleFunc("DELETE /job/", deleteJob)
+
+	err = http.ListenAndServe(":8080", mux)
+
+	if err != nil {
+		log.Fatal("Unable to start server")
+	}
+	fmt.Println("Server scaffolded on port 8080.")
+}
+
+func createJob(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Creating job...."))
+}
+
+func listJobs(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Listing jobs...."))
+}
+func getJob(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Getting job...."))
+}
+func deleteJob(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Deleting job...."))
 }
